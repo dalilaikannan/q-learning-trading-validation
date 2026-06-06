@@ -38,7 +38,7 @@ def fit_hmm(log_returns, vix, n_states=3, random_state=42):
     )
     model.fit(df_scaled)
 
-    # Predict states
+    # predict states
     states = model.predict(df_scaled)
 
     return model, states, scaler, df.index
