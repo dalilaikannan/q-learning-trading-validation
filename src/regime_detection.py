@@ -46,7 +46,8 @@ def fit_hmm(log_returns, vix, n_states=3, random_state=42):
 
 def label_regimes(states, log_returns):
     """
-    Label HMM states as bull/bear/sideways based on mean returns
+    Label HMM states as bull/bear/sideways based on mean returns.
+    Returns (labels, label_map) so label_map can be reused for out-of-sample data.
     """
     state_means = {}
     for state in np.unique(states):
@@ -61,5 +62,19 @@ def label_regimes(states, log_returns):
         sorted_states[2][0]: "bear"
     }
 
-    return pd.Categorical([label_map[s] for s in states],
-                          categories=["bull", "sideways", "bear"])
+    labels = pd.Categorical([label_map[s] for s in states],
+                             categories=["bull", "sideways", "bear"])
+    return labels, label_map
+
+
+def predict_regimes(model, scaler, label_map, log_returns, vix):
+    """
+    Apply a fitted HMM and label_map to new out-of-sample data.
+    Returns (labels, aligned_index).
+    """
+    df = pd.concat([log_returns, vix], axis=1).dropna()
+    df_scaled = scaler.transform(df)
+    states = model.predict(df_scaled)
+    labels = pd.Categorical([label_map[s] for s in states],
+                             categories=["bull", "sideways", "bear"])
+    return labels, df.index

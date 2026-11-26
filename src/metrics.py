@@ -19,7 +19,14 @@ def sortino_ratio(returns, periods=252):
     return ann_avg/downside_std_dev
 
 def max_drawdown(portfolio_values):
-    """ """
-    rolling_max = portfolio_values.cummax() 
+    rolling_max = portfolio_values.cummax()
     drawdown = (portfolio_values - rolling_max) / rolling_max
     return drawdown.min()
+
+def cagr(portfolio_values, periods=252):
+    """Compound Annual Growth Rate"""
+    n_years = len(portfolio_values) / periods
+    if n_years <= 0:
+        return 0.0
+    total_return = portfolio_values.iloc[-1] / portfolio_values.iloc[0]
+    return total_return ** (1 / n_years) - 1
